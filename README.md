@@ -1,5 +1,8 @@
 # SolidEdge - Least Squares Fitting
 
-Allows user to select vertices for constructing various geometrical objects (plane, cylinder).
+Allows user to select vertices and use them to construct various geometrical objects (plane, cylinder).
 
-Algorithms used for least squares fitting come from [this document](https://www.geometrictools.com/Documentation/LeastSquaresFitting.pdf) by David Eberly.
+### Sources of algorithms used:
+  - Plane: [Answer on Mathematics Stack Exchange by joriki](https://math.stackexchange.com/a/99317)
+  - Cylinder: [Least Squares Fitting of Data by Linear or Quadratic
+Structures by David Eberly](https://www.geometrictools.com/Documentation/LeastSquaresFitting.pdf)
