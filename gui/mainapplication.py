@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from tkinter import ttk
 
-from solidedge.vertexselector import VertexSelector
+from lfs import fit_plane
+from solidedge import VertexSelector, construct_plane
 
 
 class MainApplication(ttk.Frame):
@@ -16,11 +17,13 @@ class MainApplication(ttk.Frame):
 
         self.b_start_selection = ttk.Button(text = "Run selector", command = self.run_selector)
         self.b_stop_selection = ttk.Button(text = "Stop selector", command = self.stop_selector)
-        self.b_get_points = ttk.Button(text = "Získej body", command = self.get_points)
+        self.b_get_points = ttk.Button(text = "Get points", command = self.get_points)
+        self.b_fit_plane = ttk.Button(text = "Fit plane", command = self.fit_plane)
 
         self.b_start_selection.pack()
         self.b_stop_selection.pack()
         self.b_get_points.pack()
+        self.b_fit_plane.pack()
 
     def run_selector(self) -> None:
         """Start vertex selection"""
@@ -62,3 +65,9 @@ class MainApplication(ttk.Frame):
 
         points = self.vertex_selector.get_coordinates()
         print(points)
+
+    def fit_plane(self):
+        """Fit plane through the selected points"""
+        points = self.vertex_selector.get_coordinates()
+        bounding_rectangle = fit_plane(points)
+        construct_plane(bounding_rectangle)
