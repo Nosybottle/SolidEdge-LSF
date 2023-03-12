@@ -22,7 +22,8 @@ def construct_plane(bounding_points):
 
     blue_surf = blue_surfs.Add(2, sections, origins, seConstants.igNatural, 0, seConstants.igNatural, 0, 0, (),
                                seConstants.igNatural, 0, seConstants.igNatural, 0, False, False)
-    blue_surf.DropParents()
 
     # Cleanup
+    if doc.ModelingMode == seConstants.seModelingModeOrdered:
+        blue_surf.DropParents()
     sketch_3d.Delete()
