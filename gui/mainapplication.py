@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from tkinter import ttk
 
-from lfs import fit_plane
-from solidedge import VertexSelector, construct_plane
+from lfs import fit_plane, fit_cylinder
+from solidedge import VertexSelector, construct_plane, construct_cylinder
 
 
 class MainApplication(ttk.Frame):
@@ -19,11 +19,13 @@ class MainApplication(ttk.Frame):
         self.b_stop_selection = ttk.Button(text = "Stop selector", command = self.stop_selector)
         self.b_get_points = ttk.Button(text = "Get points", command = self.get_points)
         self.b_fit_plane = ttk.Button(text = "Fit plane", command = self.fit_plane)
+        self.b_fit_cylinder = ttk.Button(text = "Fit cylinder", command = self.fit_cylinder)
 
         self.b_start_selection.pack()
         self.b_stop_selection.pack()
         self.b_get_points.pack()
         self.b_fit_plane.pack()
+        self.b_fit_cylinder.pack()
 
     def run_selector(self) -> None:
         """Start vertex selection"""
@@ -69,5 +71,15 @@ class MainApplication(ttk.Frame):
     def fit_plane(self):
         """Fit plane through the selected points"""
         points = self.vertex_selector.get_coordinates()
+        self.stop_selector()
+
         bounding_rectangle = fit_plane(points)
         construct_plane(bounding_rectangle)
+
+    def fit_cylinder(self):
+        """Fit cylinder through the selected points"""
+        points = self.vertex_selector.get_coordinates()
+        self.stop_selector()
+
+        normal_vector, radius, end_point, length = fit_cylinder(points)
+        construct_cylinder(normal_vector, radius, end_point, length)
