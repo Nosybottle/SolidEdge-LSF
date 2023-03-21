@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 import numpy as np
-import win32gui
 import win32com.client
-# noinspection PyUnresolvedReferences
-from pywintypes import com_error
+import win32gui  # noqa
+from pywintypes import com_error  # noqa
 
-from solidedge.seconnect import app, seConstants, seGeometry
+from solidedge.seconnect import app, seConstants, seGeometry, get_active_document
 
 
 def rgb_to_int(r, g, b):
@@ -21,11 +20,27 @@ class VertexSelector:
         self.start_drag: None | tuple[float, float] = None
         self.end_drag: None | tuple[float, float] = None
 
-        self.doc = app.ActiveDocument
+        self.doc = None
+        self.window = None
+        self.view = None
+        self.highlight_set = None
+        self.command = None
+        self.mouse = None
+
+    def create_command(self, force_clear: bool = False) -> bool:
+        """Create new SolidEdge command to select vertices. Return success of creating new command"""
+        if force_clear or not self.is_active_document():
+            self.clear_highlight()
+            self.vertices.clear()
+
+        self.doc = get_active_document()
+        if self.doc is None:
+            return False
+
         self.window = app.ActiveWindow
         self.view = self.window.View
 
-        self.highlight_set = app.ActiveDocument.HighlightSets.Add()
+        self.highlight_set = self.doc.HighlightSets.Add()
         self.highlight_set.Color = rgb_to_int(0, 127, 0)
 
         self.command = app.CreateCommand(seConstants.seNoDeactivate)
@@ -36,30 +51,35 @@ class VertexSelector:
         self.mouse.EnabledDrag = True
         self.mouse.ScaleMode = 0
         self.mouse.WindowTypes = 1
-        # self.mouse.AddToLocateFilter(seConstants.seLocateVertex)
         self.mouse.AddToLocateFilter(seConstants.seLocatePoint)
 
         self.register_events()
+
+        return True
 
     def register_events(self) -> None:
         """Register the necessary Solid Edge events.
         MouseEvents is defined within the function to allow access to a VertexSelector instance"""
 
-        # noinspection PyPep8Naming
         # Method names are the same as the mouse Event prefixed with "On"
         # Defining MouseEvents class inside a function gives it access to the VertexSelector object via "self"
+        # noinspection PyPep8Naming
         class MouseEvents:
             @staticmethod
-            def OnMouseDown(*args):
+            def OnMouseDown(*args) -> None:
                 """When mouse is clicked pass the event to the Vertex Selector to handle"""
                 self.mouse_down(*args)
 
             @staticmethod
-            def OnMouseDrag(*args):
+            def OnMouseDrag(*args) -> None:
                 """When mouse is dragged pass the event to the Vertex Selector to handle"""
                 self.mouse_drag(*args)
 
         win32com.client.WithEvents(self.mouse, MouseEvents)
+
+    def is_active_document(self) -> bool:
+        """Check whether saved document is the currently active one"""
+        return self.doc == app.ActiveDocument
 
     @staticmethod
     def process_events() -> None:
@@ -68,15 +88,25 @@ class VertexSelector:
 
     def is_done(self) -> bool:
         """Is the command done? Accessing the 'Done' attribute when the command is actually done raises an error"""
+        # Command is already destroyed, it must be done
+        if self.command is None:
+            return True
+
         try:
             return self.command.Done
         except com_error:
             return True
 
-    @staticmethod
-    def terminate() -> None:
+    def terminate(self) -> None:
         """Terminate the mouse event"""
+        self.clear_highlight()
         app.AbortCommand(True)
+
+        self.window = None
+        self.view = None
+        self.highlight_set = None
+        self.command = None
+        self.mouse = None
 
     @staticmethod
     def get_body_vertices(model) -> list:
@@ -188,12 +218,22 @@ class VertexSelector:
         self.highlight_set.Draw()
         del self.vertices[vertex.Tag]
 
-    def clear_highlight(self) -> None:
-        """Clear highlighted vertices"""
-        self.highlight_set.RemoveAll()
+    def highlight_all(self) -> None:
+        """Highlight all saved vertices"""
+        for vertex in self.vertices.values():
+            self.highlight_set.AddItem(vertex)
         self.highlight_set.Draw()
 
-    def get_coordinates(self):
+    def clear_highlight(self) -> None:
+        """Clear highlighted vertices"""
+        if self.highlight_set is not None:
+            self.highlight_set.RemoveAll()
+            self.highlight_set.Draw()
+
+    def get_coordinates(self) -> None | np.ndarray:
         """Get 3D coordinates of the selected vertices"""
+        if not self.is_active_document():
+            return
+
         points = [vertex.GetPointData(tuple()) for vertex in self.vertices.values()]
         return np.array(points)

@@ -1,9 +1,12 @@
-from solidedge.seconnect import app, seConstants
+from solidedge.seconnect import seConstants, get_active_document
 
 
-def construct_plane(bounding_points):
+def construct_plane(bounding_points) -> None:
     """Construct a plane from the bounding points"""
-    doc = app.ActiveDocument
+    doc = get_active_document()
+    if doc is None:
+        return
+
     constructions = doc.Constructions
     blue_surfs = constructions.BlueSurfs
     sketches_3d = doc.Sketches3D

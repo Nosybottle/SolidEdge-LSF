@@ -1,6 +1,15 @@
 import win32com.client
 from solidedge.comwrapper import COMWrapper
 
+
+def get_active_document():
+    """Ask for active document. If it's not part, return None"""
+    doc = app.ActiveDocument
+    if doc.Type != seConstants.igPartDocument:
+        return None
+    return doc
+
+
 # Load libraries
 seConstants = win32com.client.gencache.EnsureModule("{C467A6F5-27ED-11D2-BE30-080036B4D502}", 0, 1, 0).constants
 seGeometry = win32com.client.gencache.EnsureModule('{3E2B3BE1-F0B9-11D1-BDFD-080036B4D502}', 0, 1, 0)

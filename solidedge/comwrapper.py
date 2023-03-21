@@ -38,7 +38,7 @@ def _com_call_wrapper(f, *args, **kwargs):
     return result
 
 
-class COMWrapper(object):
+class COMWrapper:
     """
     Class to wrap COM objects to repeat calls when 'Call was rejected by callee.' exception occurs.
     """
@@ -66,3 +66,8 @@ class COMWrapper(object):
 
     def __repr__(self):
         return 'ComWrapper<{}>'.format(repr(self.wrapped_object))
+
+    def __eq__(self, other):
+        if isinstance(other, COMWrapper):
+            return self.wrapped_object == other.wrapped_object
+        return False
