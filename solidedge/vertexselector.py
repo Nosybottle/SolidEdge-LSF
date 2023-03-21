@@ -27,9 +27,20 @@ class VertexSelector:
         self.command = None
         self.mouse = None
 
-    def create_command(self, force_clear: bool = False) -> bool:
+    def new_selection(self) -> None:
+        """Clean old and start new vertex selection"""
+        self.create_command(clear_data = True)
+
+    def continue_selection(self) -> None:
+        """Continue selection with current vertices"""
+        if self.highlight_set is not None:
+            self.clear_highlight()
+        self.create_command(clear_data = False)
+        self.highlight_all()
+
+    def create_command(self, clear_data: bool) -> bool:
         """Create new SolidEdge command to select vertices. Return success of creating new command"""
-        if force_clear or not self.is_active_document():
+        if clear_data or not self.is_active_document():
             self.clear_highlight()
             self.vertices.clear()
 

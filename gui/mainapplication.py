@@ -42,14 +42,13 @@ class MainApplication(ttk.Frame):
     def run_selector(self) -> None:
         """Start vertex selection"""
         print("Starting selection...")
-        self.vertex_selector.create_command(force_clear = True)
+        self.vertex_selector.new_selection()
         self.process_events()
 
     def continue_selector(self) -> None:
         """Continue stopped selector"""
         print("Continuing selection...")
-        self.vertex_selector.create_command()
-        self.vertex_selector.highlight_all()
+        self.vertex_selector.continue_selection()
         self.process_events()
 
     def stop_selector(self) -> None:
