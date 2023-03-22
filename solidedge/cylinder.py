@@ -1,9 +1,12 @@
-from solidedge.seconnect import app, seConstants
+from solidedge.seconnect import seConstants, get_active_document
 
 
-def construct_cylinder(direction, radius, origin, length):
+def construct_cylinder(direction, radius, origin, length) -> None:
     """Model a cylinder at specific point and orientation in space"""
-    doc = app.ActiveDocument
+    doc = get_active_document()
+    if doc is None:
+        return
+
     constructions = doc.Constructions
     ref_planes = doc.RefPlanes
 
