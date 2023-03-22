@@ -16,9 +16,9 @@ def main():
 
     root = tk.Tk()
     root.protocol("WM_DELETE_WINDOW", lambda: on_close(root))
-    root.iconbitmap("icon.ico")
     root.title("SE - Least Squares Fitting")
     root.resizable(False, False)
+    root.iconbitmap("icon.ico")
 
     main_application = MainApplication(root)
     main_application.pack(fill = "both", expand = True)
