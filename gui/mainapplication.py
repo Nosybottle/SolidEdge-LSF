@@ -54,7 +54,7 @@ class MainApplication(ttk.Frame):
     def stop_selector(self) -> None:
         """Stop the vertex selection"""
         print("Terminating selection...")
-        self.vertex_selector.terminate()
+        self.vertex_selector.stop()
 
     def on_close(self, *_) -> None:
         """When the application is closing terminate the mouse event"""

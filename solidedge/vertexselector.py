@@ -108,7 +108,7 @@ class VertexSelector:
         except com_error:
             return True
 
-    def terminate(self) -> None:
+    def stop(self) -> None:
         """Terminate the mouse event"""
         self.clear_highlight()
         app.AbortCommand(True)
