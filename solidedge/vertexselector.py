@@ -38,11 +38,21 @@ class VertexSelector:
         self.create_command(clear_data = False)
         self.highlight_all()
 
+    def stop(self) -> None:
+        """Terminate the mouse event"""
+        self.clear_highlight()
+        app.AbortCommand(True)
+
+        self.window = None
+        self.view = None
+        self.highlight_set = None
+        self.command = None
+        self.mouse = None
+
     def create_command(self, clear_data: bool) -> bool:
         """Create new SolidEdge command to select vertices. Return success of creating new command"""
         if clear_data or not self.is_active_document():
-            self.clear_highlight()
-            self.vertices.clear()
+            self.clear()
 
         self.doc = get_active_document()
         if self.doc is None:
@@ -107,17 +117,6 @@ class VertexSelector:
             return self.command.Done
         except com_error:
             return True
-
-    def stop(self) -> None:
-        """Terminate the mouse event"""
-        self.clear_highlight()
-        app.AbortCommand(True)
-
-        self.window = None
-        self.view = None
-        self.highlight_set = None
-        self.command = None
-        self.mouse = None
 
     @staticmethod
     def get_body_vertices(model) -> list:
@@ -229,6 +228,11 @@ class VertexSelector:
         self.highlight_set.Draw()
         del self.vertices[vertex.Tag]
 
+    def clear(self) -> None:
+        """Clear selected vertices"""
+        self.vertices.clear()
+        self.clear_highlight()
+
     def highlight_all(self) -> None:
         """Highlight all saved vertices"""
         for vertex in self.vertices.values():
@@ -248,3 +252,8 @@ class VertexSelector:
 
         points = [vertex.GetPointData(tuple()) for vertex in self.vertices.values()]
         return np.array(points)
+
+    @property
+    def count(self) -> int:
+        """Return number of selected vertices"""
+        return len(self.vertices)
