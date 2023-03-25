@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import logging
 from tkinter import ttk
 
 from lfs import fit_plane, fit_cylinder
 from solidedge import VertexSelector, construct_plane, construct_cylinder
+
+logger = logging.getLogger("LSF")
 
 
 class MainApplication(ttk.Frame):
@@ -115,6 +118,12 @@ class MainApplication(ttk.Frame):
     def fit_plane(self):
         """Fit plane through the selected points"""
         points = self.vertex_selector.get_coordinates()
+        if points is None:
+            return
+        if len(points) < 6:
+            logger.error("Fit plane|Not enough points selected.\n\nPlease select at least 3 points.")
+            return
+
         self.clear()
 
         bounding_rectangle = fit_plane(points)
@@ -123,6 +132,12 @@ class MainApplication(ttk.Frame):
     def fit_cylinder(self):
         """Fit cylinder through the selected points"""
         points = self.vertex_selector.get_coordinates()
+        if points is None:
+            return
+        if len(points) < 6:
+            logger.error("Fit cylinder|Not enough points selected.\n\nPlease select at least 6 points.")
+            return
+
         self.clear()
 
         normal_vector, radius, end_point, length = fit_cylinder(points)
