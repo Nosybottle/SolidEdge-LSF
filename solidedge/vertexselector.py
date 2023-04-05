@@ -249,6 +249,12 @@ class VertexSelector:
 
     def clear_highlight(self) -> None:
         """Clear highlighted vertices"""
+        print(se.get_active_document(suppress_warning = True))
+        if se.get_active_document(suppress_warning = True) is None:
+            return
+
+        # if self.is_done():
+        #     return
         if self.highlight_set is not None:
             self.highlight_set.RemoveAll()
             self.highlight_set.Draw()
