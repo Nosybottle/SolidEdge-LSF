@@ -1,9 +1,9 @@
-from solidedge.seconnect import seConstants, get_active_document
+import solidedge.seconnect as se
 
 
 def construct_plane(bounding_points) -> None:
     """Construct a plane from the bounding points"""
-    doc = get_active_document()
+    doc = se.get_active_document()
     if doc is None:
         return
 
@@ -19,14 +19,14 @@ def construct_plane(bounding_points) -> None:
 
     # Connect them using BlueSurf
     body = constructions.Item(constructions.Count).Body
-    edges = body.Edges(seConstants.igQueryAll)
+    edges = body.Edges(se.constants.igQueryAll)
     sections = [edges.Item(1), edges.Item(2)]
     origins = [section.StartVertex for section in sections]
 
-    blue_surf = blue_surfs.Add(2, sections, origins, seConstants.igNatural, 0, seConstants.igNatural, 0, 0, (),
-                               seConstants.igNatural, 0, seConstants.igNatural, 0, False, False)
+    blue_surf = blue_surfs.Add(2, sections, origins, se.constants.igNatural, 0, se.constants.igNatural, 0, 0, (),
+                               se.constants.igNatural, 0, se.constants.igNatural, 0, False, False)
 
     # Cleanup
-    if doc.ModelingMode == seConstants.seModelingModeOrdered:
+    if doc.ModelingMode == se.constants.seModelingModeOrdered:
         blue_surf.DropParents()
     sketch_3d.Delete()

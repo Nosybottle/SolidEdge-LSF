@@ -5,7 +5,7 @@ import win32com.client
 import win32gui  # noqa
 from pywintypes import com_error  # noqa
 
-from solidedge.seconnect import app, seConstants, seGeometry, get_active_document
+from solidedge import se
 
 
 def rgb_to_int(r, g, b):
@@ -35,13 +35,18 @@ class VertexSelector:
         """Continue selection with current vertices"""
         if self.highlight_set is not None:
             self.clear_highlight()
-        self.create_command(clear_data = False)
+        success = self.create_command(clear_data = False)
+        if not success:
+            return
         self.highlight_all()
 
     def stop(self) -> None:
         """Terminate the mouse event"""
+        if self.command is None:
+            return
+
         self.clear_highlight()
-        app.AbortCommand(True)
+        se.app.AbortCommand(True)
 
         self.window = None
         self.view = None
@@ -51,20 +56,21 @@ class VertexSelector:
 
     def create_command(self, clear_data: bool) -> bool:
         """Create new SolidEdge command to select vertices. Return success of creating new command"""
-        if clear_data or not self.is_active_document():
-            self.clear()
-
-        self.doc = get_active_document()
-        if self.doc is None:
+        active_document = se.get_active_document()
+        if active_document is None:
             return False
 
-        self.window = app.ActiveWindow
+        if clear_data or not self.working_document_is_active_document(active_document):
+            self.clear()
+
+        self.doc = active_document
+        self.window = se.app.ActiveWindow
         self.view = self.window.View
 
         self.highlight_set = self.doc.HighlightSets.Add()
         self.highlight_set.Color = rgb_to_int(0, 127, 0)
 
-        self.command = app.CreateCommand(seConstants.seNoDeactivate)
+        self.command = se.app.CreateCommand(se.constants.seNoDeactivate)
         self.command.Start()
 
         self.mouse = self.command.Mouse
@@ -72,7 +78,7 @@ class VertexSelector:
         self.mouse.EnabledDrag = True
         self.mouse.ScaleMode = 0
         self.mouse.WindowTypes = 1
-        self.mouse.AddToLocateFilter(seConstants.seLocatePoint)
+        self.mouse.AddToLocateFilter(se.constants.seLocatePoint)
 
         self.register_events()
 
@@ -98,9 +104,11 @@ class VertexSelector:
 
         win32com.client.WithEvents(self.mouse, MouseEvents)
 
-    def is_active_document(self) -> bool:
+    def working_document_is_active_document(self, active_document) -> bool:
         """Check whether saved document is the currently active one"""
-        return self.doc == app.ActiveDocument
+        # if active_document is None:
+        #     return False
+        return self.doc == active_document
 
     @staticmethod
     def process_events() -> None:
@@ -202,7 +210,7 @@ class VertexSelector:
 
     def process_vertex(self, vertex, modifier) -> None:
         """Determine what should be done with the selected vertex based on the modifier key held"""
-        vertex = seGeometry.Vertex(vertex)
+        vertex = se.geometry.Vertex(vertex)
 
         if modifier == 2:  # CTRL
             self.remove_vertex(vertex)
@@ -241,14 +249,23 @@ class VertexSelector:
 
     def clear_highlight(self) -> None:
         """Clear highlighted vertices"""
+        if se.get_active_document(suppress_warning = True) is None:
+            return
+
         if self.highlight_set is not None:
             self.highlight_set.RemoveAll()
             self.highlight_set.Draw()
 
     def get_coordinates(self) -> None | np.ndarray:
         """Get 3D coordinates of the selected vertices"""
-        if not self.is_active_document():
+        # No document is active, return nothing
+        active_document = se.get_active_document()
+        if active_document is None:
             return
+
+        # Working document isn't the active one, return 0 selected points
+        if not self.working_document_is_active_document(active_document):
+            return np.array([])
 
         points = [vertex.GetPointData(tuple()) for vertex in self.vertices.values()]
         return np.array(points)

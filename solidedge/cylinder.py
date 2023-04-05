@@ -1,9 +1,9 @@
-from solidedge.seconnect import seConstants, get_active_document
+import solidedge.seconnect as se
 
 
 def construct_cylinder(direction, radius, origin, length) -> None:
     """Model a cylinder at specific point and orientation in space"""
-    doc = get_active_document()
+    doc = se.get_active_document()
     if doc is None:
         return
 
@@ -15,8 +15,8 @@ def construct_cylinder(direction, radius, origin, length) -> None:
     lines_3d = sketch_3d.Lines3D
     line_3d = lines_3d.Add(*origin, *(origin + direction * length))
 
-    edge = constructions.Item(constructions.Count).Body.Edges(seConstants.igQueryAll).Item(1)
-    plane = ref_planes.AddNormalToCurve(edge, seConstants.igCurveStart, ref_planes.Item(1), seConstants.igPivotEnd)
+    edge = constructions.Item(constructions.Count).Body.Edges(se.constants.igQueryAll).Item(1)
+    plane = ref_planes.AddNormalToCurve(edge, se.constants.igCurveStart, ref_planes.Item(1), se.constants.igPivotEnd)
 
     # Extrude cylinder
     sketch = doc.Sketches.Add()
@@ -25,10 +25,10 @@ def construct_cylinder(direction, radius, origin, length) -> None:
     circles_2d.AddByCenterRadius(0, 0, radius)
 
     extrusions = constructions.ExtrudedSurfaces
-    extrusion = extrusions.AddFinite(1, [profile], seConstants.igLeft, length)
+    extrusion = extrusions.AddFinite(1, [profile], se.constants.igLeft, length)
 
     # Cleanup
-    if doc.ModelingMode == seConstants.seModelingModeOrdered:
+    if doc.ModelingMode == se.constants.seModelingModeOrdered:
         extrusion.DropParents()
         sketch.Delete()
     line_3d.Delete()
