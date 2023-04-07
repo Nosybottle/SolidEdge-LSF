@@ -3,8 +3,8 @@ from __future__ import annotations
 import re
 import configparser
 
-config_file = "settings.ini"
-language_folder = "lang"
+config_file = "config/settings.ini"
+language_folder = "config/lang"
 
 
 def cast_value(value: str) -> str | int | float | list:
