@@ -121,7 +121,7 @@ class MainApplication(ttk.Frame):
         points = self.vertex_selector.get_coordinates()
         if points is None:
             return
-        if len(points) < 6:
+        if len(points) < 3:
             logger.error(lang.errors.plane_points)
             return
 
