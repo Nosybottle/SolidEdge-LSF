@@ -19,8 +19,8 @@ def cast_value(value: str) -> str | int | float | list:
     # list
     if value.startswith("[") and value.endswith("]") and value.count("[") == 1 and value.count("]") == 1:
         return [cast_value(item) for item in value[1:-1].split(",")]
-    # other
-    return value
+    # string
+    return value.replace("\\n", "\n")
 
 
 class ConfigNotLoadedError(Exception):
@@ -62,7 +62,7 @@ class _Config:
         # Add "unsectioned_values" at the beginning of the file to catch generic settings without a group
         # NOTE: this is probably a very bad practice going against .ini file standard
         cfg = configparser.ConfigParser()
-        cfg.read(file)
+        cfg.read(file, encoding = "utf-8")
 
         # Go through all loaded settings and try casting them to specific data types
         cast_cfg = {}

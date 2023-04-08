@@ -5,6 +5,7 @@ import win32com.client
 # noinspection PyUnresolvedReferences
 from pywintypes import com_error
 
+from config import lang
 from solidedge.comwrapper import COMWrapper
 
 logger = logging.getLogger("LSF")
@@ -30,7 +31,7 @@ def connect() -> bool:
 
     except Exception as e:
         print(e)
-        logger.error("Solid Edge|Can't connect to Solid Edge.\n\nMake sure Solid Edge is running.")
+        logger.error(lang.errors.se_not_running)
         return False
     return True
 
@@ -42,11 +43,11 @@ def get_active_document(*, suppress_warning: bool = False) -> None | COMWrapper:
         doc = app.ActiveDocument
     except com_error:
         if not suppress_warning:
-            logger.error("No document|No document is open.\n\nPlease open a Part document.")
+            logger.error(lang.errors.se_no_document)
         return None
 
     if doc.Type != constants.igPartDocument:
         if not suppress_warning:
-            logger.error("Part document|Active document must be a Part document.")
+            logger.error(lang.errors.se_not_part_document)
         return None
     return doc

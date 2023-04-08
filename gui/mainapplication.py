@@ -3,6 +3,7 @@ from __future__ import annotations
 import logging
 from tkinter import ttk
 
+from config import lang
 from lfs import fit_plane, fit_cylinder
 from solidedge import VertexSelector, construct_plane, construct_cylinder
 
@@ -27,17 +28,17 @@ class MainApplication(ttk.Frame):
         self.l_status = ttk.Label(self)
 
         # Vertex selection gui
-        self.lf_selector = ttk.Labelframe(self.f_controls, text = "Vertex selector")
-        self.b_start_selection = ttk.Button(self.lf_selector, text = "New selection", command = self.run_selector)
-        self.b_continue_selection = ttk.Button(self.lf_selector, text = "Continue",
+        self.lf_selector = ttk.Labelframe(self.f_controls, text = lang.selector.frame)
+        self.b_start_selection = ttk.Button(self.lf_selector, text = lang.selector.start, command = self.run_selector)
+        self.b_continue_selection = ttk.Button(self.lf_selector, text = lang.selector.continue_,
                                                command = self.continue_selector)
-        self.b_stop_selection = ttk.Button(self.lf_selector, text = "Stop", command = self.stop_selector)
+        self.b_stop_selection = ttk.Button(self.lf_selector, text = lang.selector.stop, command = self.stop_selector)
         self.l_counter = ttk.Label(self)
 
         # Surface fitting
-        self.lf_surfaces = ttk.Labelframe(self.f_controls, text = "Surfaces")
-        self.b_fit_plane = ttk.Button(self.lf_surfaces, text = "Fit plane", command = self.fit_plane)
-        self.b_fit_cylinder = ttk.Button(self.lf_surfaces, text = "Fit cylinder", command = self.fit_cylinder)
+        self.lf_surfaces = ttk.Labelframe(self.f_controls, text = lang.surfaces.frame)
+        self.b_fit_plane = ttk.Button(self.lf_surfaces, text = lang.surfaces.plane, command = self.fit_plane)
+        self.b_fit_cylinder = ttk.Button(self.lf_surfaces, text = lang.surfaces.cylinder, command = self.fit_cylinder)
 
         self.layout_widgets()
         self.update_counter()
@@ -79,7 +80,7 @@ class MainApplication(ttk.Frame):
     def update_counter(self) -> None:
         """Update selected vertices counter"""
         count = self.vertex_selector.count
-        self.l_counter.configure(text = f"Selected vertices: {count}")
+        self.l_counter.configure(text = f"{lang.selector.counter} {count}")
 
     def process_events(self) -> None:
         """Start loop processing the vertex selector events"""
@@ -121,7 +122,7 @@ class MainApplication(ttk.Frame):
         if points is None:
             return
         if len(points) < 6:
-            logger.error("Fit plane|Not enough points selected.\n\nPlease select at least 3 points.")
+            logger.error(lang.errors.plane_points)
             return
 
         self.clear()
@@ -135,7 +136,7 @@ class MainApplication(ttk.Frame):
         if points is None:
             return
         if len(points) < 6:
-            logger.error("Fit cylinder|Not enough points selected.\n\nPlease select at least 6 points.")
+            logger.error(lang.errors.cylinder_points)
             return
 
         self.clear()
