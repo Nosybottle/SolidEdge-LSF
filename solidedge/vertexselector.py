@@ -249,7 +249,7 @@ class VertexSelector:
 
     def clear_highlight(self) -> None:
         """Clear highlighted vertices"""
-        if se.get_active_document(suppress_warning = True) is None:
+        if not se.is_document_open(self.doc):
             return
 
         if self.highlight_set is not None:

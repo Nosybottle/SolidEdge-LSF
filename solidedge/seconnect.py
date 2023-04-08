@@ -36,18 +36,23 @@ def connect() -> bool:
     return True
 
 
-# noinspection PyUnresolvedReferences
-def get_active_document(*, suppress_warning: bool = False) -> None | COMWrapper:
+def get_active_document() -> None | COMWrapper:
     """Ask for active document. If it's not part, return None"""
     try:
         doc = app.ActiveDocument
     except com_error:
-        if not suppress_warning:
-            logger.error(lang.errors.se_no_document)
+        logger.error(lang.errors.se_no_document)
         return None
 
     if doc.Type != constants.igPartDocument:
-        if not suppress_warning:
-            logger.error(lang.errors.se_not_part_document)
+        logger.error(lang.errors.se_not_part_document)
         return None
     return doc
+
+
+def is_document_open(document) -> bool:
+    """Check whether a document is open or not"""
+    for i in range(1, app.Documents.Count + 1):
+        if document == app.Documents.Item(i):
+            return True
+    return False
