@@ -18,6 +18,9 @@ def main() -> None:
     app_id = u"Nosybottle.LSF"
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID(app_id)
 
+    # Load configuration files
+    load_config()
+
     # Create and hide root window for neater popup errors
     root = tk.Tk()
     root.withdraw()
@@ -32,9 +35,6 @@ def main() -> None:
     success = se.connect()
     if not success:
         return
-
-    # Load configuration files
-    load_config()
 
     # Create and configure tkinter window
     root.deiconify()
