@@ -1,6 +1,7 @@
 import logging
 import ctypes
 import tkinter as tk
+import sys
 
 from solidedge import se
 from gui.mainapplication import MainApplication
@@ -28,8 +29,11 @@ def main() -> None:
     # Setup logging
     popup_handler = PopupHandler()
     popup_handler.setLevel(logging.ERROR)
+    std_handler = logging.StreamHandler(sys.stderr)
+    std_handler.setLevel(logging.WARNING)
     logger = logging.getLogger("LSF")
     logger.addHandler(popup_handler)
+    logger.addHandler(std_handler)
 
     # Attempt to connect to SolidEdge
     success = se.connect()

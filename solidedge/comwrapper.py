@@ -1,11 +1,14 @@
 import time
+import logging
 # noinspection PyUnresolvedReferences
 from pywintypes import com_error
 
+from config import lang
+
+logger = logging.getLogger("LSF")
+
 _DELAY = 0.05  # seconds
 _TIMEOUT = 5.0  # seconds
-
-call_rejected_messages = ["Call was rejected by callee.", "Volaný odmítl volání."]
 
 
 def _com_call_wrapper(f, *args, **kwargs):
@@ -23,12 +26,17 @@ def _com_call_wrapper(f, *args, **kwargs):
         try:
             result = f(*args, **kwargs)
         except com_error as e:
-            if e.strerror in call_rejected_messages:
+            if e.hresult == -2147418111:
                 print("Call was rejected by callee, retrying...")
                 if time.time() - start_time >= _TIMEOUT:
                     raise
                 time.sleep(_DELAY)
                 continue
+            elif e.hresult in (-2147417848, -2147352567):
+                logger.warning(e)
+            else:
+                logger.warning(e)
+                logger.error(lang.errors.com + str(e))
             raise
         break
 
