@@ -119,9 +119,10 @@ class MainApplication(ttk.Frame):
     def fit_plane(self):
         """Fit plane through the selected points"""
         points = self.vertex_selector.get_coordinates()
+        print(f"{points = }")
         if points is None:
             return
-        if len(points) < 6:
+        if len(points) < 3:
             logger.error(lang.errors.plane_points)
             return
 
