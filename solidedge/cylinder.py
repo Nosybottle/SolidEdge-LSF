@@ -15,8 +15,9 @@ def construct_cylinder(direction, radius, origin, length) -> None:
     lines_3d = sketch_3d.Lines3D
     line_3d = lines_3d.Add(*origin, *(origin + direction * length))
 
+    ref_plane = ref_planes.Item(1) if all(direction != [0, 0, 1]) else ref_planes.Item(2)
     edge = constructions.Item(constructions.Count).Body.Edges(se.constants.igQueryAll).Item(1)
-    plane = ref_planes.AddNormalToCurve(edge, se.constants.igCurveStart, ref_planes.Item(1), se.constants.igPivotEnd)
+    plane = ref_planes.AddNormalToCurve(edge, se.constants.igCurveStart, ref_plane, se.constants.igPivotEnd)
 
     # Extrude cylinder
     sketch = doc.Sketches.Add()

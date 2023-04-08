@@ -1,6 +1,33 @@
+from __future__ import annotations
+
 import multiprocessing
 from functools import partial
 import numpy as np
+
+from config import config
+
+
+def get_normals_in_range(phi_0, phi_1, theta_0, theta_1, step):
+    """Calculate vectors for a given segment of a sphere"""
+    # Make sure number of steps is odd so that midpoint of the range is included in the angles
+    phi_steps = int((phi_1 - phi_0) / 2 / step) * 2 + 1
+    theta_steps = int((theta_1 - theta_0) / 2 / step) * 2 + 1
+
+    phi = np.linspace(phi_0, phi_1, phi_steps)
+    theta = np.linspace(theta_0, theta_1, theta_steps, endpoint = False)
+
+    # Precompute sines and cosines
+    sin_phi = np.sin(phi)
+    cos_phi = np.cos(phi)
+    sin_theta = np.sin(theta)
+    cos_theta = np.cos(theta)
+
+    # Calculate all possible normals
+    normals = np.array([
+        [sp * ct, sp * st, cp] for sp, cp in zip(sin_phi, cos_phi) for st, ct in zip(sin_theta, cos_theta)
+    ])
+
+    return normals, phi, theta
 
 
 def preprocess(points):
@@ -33,7 +60,7 @@ def preprocess(points):
     return mean, x, mu, f0, f1, f2
 
 
-def fit_cylinder_by_axis(w, num_points, mu, f0, f1, f2):
+def fit_cylinder_to_axis(w, num_points, mu, f0, f1, f2):
     """For a given axis try fitting a cylinder and return its parameters along with total error"""
     p = np.identity(3) - np.outer(w, w)
     s = np.array([
@@ -60,34 +87,51 @@ def fit_cylinder_by_axis(w, num_points, mu, f0, f1, f2):
     return error, r_sqr, center, w
 
 
-def fit_cylinder(points):
-    """Fit cylinder through a set of points"""
-    mean, centered_points, mu, f0, f1, f2 = preprocess(points)
-
-    # Uniformly distribute angles for testing cylinder axis vectors
-    phi_steps = 90
-    theta_steps = 360
-
-    phi = np.linspace(0, np.pi / 2, phi_steps)  # [0, pi/2]
-    theta = np.linspace(0, 2 * np.pi, theta_steps, endpoint = False)  # [0, 2 * pi)
-
-    # Precompute sines and cosines
-    sin_phi = np.sin(phi)
-    cos_phi = np.cos(phi)
-    sin_theta = np.sin(theta)
-    cos_theta = np.cos(theta)
-
-    # Calculate all possible normals
-    normals = np.array([
-        [sp * ct, sp * st, cp] for sp, cp in zip(sin_phi, cos_phi) for st, ct in zip(sin_theta, cos_theta)
-    ])
-
+def fit_cylinder_in_range(fit_cylinder_partial, normals):
+    """Fit cylinder along specified normal vectors and find the best one"""
     pool = multiprocessing.Pool()
-    cylinder_partial = partial(fit_cylinder_by_axis, num_points = len(points), mu = mu, f0 = f0, f1 = f1, f2 = f2)
-    results = pool.map(cylinder_partial, normals)
+    results = pool.map(fit_cylinder_partial, normals)
 
     # Get cylinder with the smallest error
-    _, r_sqr, center, normal = min(results, key = lambda item: item[0])
+    best_cylinder = min(results, key = lambda item: item[0])
+    best_index = results.index(best_cylinder)
+    _, r_sqr, center, normal = best_cylinder
+
+    return best_index, r_sqr, center, normal
+
+
+def fit_cylinder(points):
+    """Fit cylinder through a set of points"""
+    # Prepare data
+    mean, centered_points, mu, f0, f1, f2 = preprocess(points)
+    fit_cylinder_partial = partial(fit_cylinder_to_axis, num_points = len(points), mu = mu, f0 = f0, f1 = f1, f2 = f2)
+
+    # Fit cylinders in steps
+    phi_0 = 0
+    phi_1 = np.pi / 2
+    theta_0 = 0
+    theta_1 = np.pi * 2
+    r_sqr, center, normal = 0, 0, np.zeros(3)
+
+    for i, angle_step in enumerate(config.cylinder_angle_steps):
+        angle_step = float(np.radians(angle_step))
+
+        # Find best cylinder in range
+        normal_vectors, phi, theta = get_normals_in_range(phi_0, phi_1, theta_0, theta_1, angle_step)
+        best_index, r_sqr, center, normal = fit_cylinder_in_range(fit_cylinder_partial, normal_vectors)
+
+        # Calculate new range to search in
+        if i < len(config.cylinder_angle_steps) - 1:
+            # index of best phi and best theta comes from the list comprehensions with two loops 
+            best_phi = phi[best_index // len(theta)]
+            best_theta = theta[best_index % len(theta)]
+
+            phi_0 = best_phi - angle_step
+            phi_1 = best_phi + angle_step
+            theta_0 = best_theta - angle_step
+            theta_1 = best_theta + angle_step
+
+    # Offset cylinder back to its original position
     center += mean
 
     # Calculate end point and length of the cylinder
