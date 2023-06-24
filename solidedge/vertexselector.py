@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import numpy as np
+import numpy.typing as npt
 import win32com.client
 import win32gui  # noqa
 from pywintypes import com_error  # noqa
@@ -256,7 +257,7 @@ class VertexSelector:
             self.highlight_set.RemoveAll()
             self.highlight_set.Draw()
 
-    def get_coordinates(self) -> None | np.ndarray:
+    def get_coordinates(self) -> npt.NDArray | None:
         """Get 3D coordinates of the selected vertices"""
         # No document is active, return nothing
         active_document = se.get_active_document()

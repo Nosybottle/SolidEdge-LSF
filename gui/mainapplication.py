@@ -4,8 +4,8 @@ import logging
 from tkinter import ttk
 
 from config import lang
-from lfs import fit_plane, fit_cylinder
-from solidedge import VertexSelector, construct_plane, construct_cylinder
+import lsf
+import solidedge as se
 
 logger = logging.getLogger("LSF")
 
@@ -18,7 +18,7 @@ class MainApplication(ttk.Frame):
         mater.bind("<<OnClose>>", self.on_close)
 
         self.status_visible = False
-        self.vertex_selector = VertexSelector()
+        self.vertex_selector = se.VertexSelector()
 
         # Main frame
         self.f_controls = ttk.Frame(self)
@@ -37,8 +37,10 @@ class MainApplication(ttk.Frame):
 
         # Surface fitting
         self.lf_surfaces = ttk.Labelframe(self.f_controls, text = lang.surfaces.frame)
-        self.b_fit_plane = ttk.Button(self.lf_surfaces, text = lang.surfaces.plane, command = self.fit_plane)
-        self.b_fit_cylinder = ttk.Button(self.lf_surfaces, text = lang.surfaces.cylinder, command = self.fit_cylinder)
+        self.b_fit_plane = ttk.Button(self.lf_surfaces, text = lang.surfaces.plane,
+                                      command = lambda: self.fit_object_to_points("plane"))
+        self.b_fit_cylinder = ttk.Button(self.lf_surfaces, text = lang.surfaces.cylinder,
+                                         command = lambda: self.fit_object_to_points("cylinder"))
 
         self.layout_widgets()
         self.update_counter()
@@ -116,30 +118,23 @@ class MainApplication(ttk.Frame):
         """When the application is closing terminate the mouse event"""
         self.stop_selector()
 
-    def fit_plane(self):
-        """Fit plane through the selected points"""
+    def fit_object_to_points(self, fitting_object: str) -> None:
+        """Fit a specified object to points"""
+        if self.vertex_selector.count < lsf.required_points[fitting_object]:
+            logger.error(lang.errors[f"{fitting_object}_points"])
+            return
+
         points = self.vertex_selector.get_coordinates()
         if points is None:
-            return
-        if len(points) < 3:
-            logger.error(lang.errors.plane_points)
             return
 
         self.clear()
 
-        bounding_rectangle = fit_plane(points)
-        construct_plane(bounding_rectangle)
+        fitting_function = getattr(lsf, f"fit_{fitting_object}")
+        drawing_function = getattr(se, f"construct_{fitting_object}")
 
-    def fit_cylinder(self):
-        """Fit cylinder through the selected points"""
-        points = self.vertex_selector.get_coordinates()
-        if points is None:
-            return
-        if len(points) < 6:
-            logger.error(lang.errors.cylinder_points)
-            return
-
-        self.clear()
-
-        normal_vector, radius, end_point, length = fit_cylinder(points)
-        construct_cylinder(normal_vector, radius, end_point, length)
+        fitting_data = fitting_function(points)
+        if isinstance(fitting_data, tuple):
+            drawing_function(*fitting_data)
+        else:
+            drawing_function(fitting_data)

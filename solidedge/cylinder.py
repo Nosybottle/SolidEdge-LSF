@@ -1,7 +1,9 @@
+import numpy.typing as npt
+
 import solidedge.seconnect as se
 
 
-def construct_cylinder(direction, radius, origin, length) -> None:
+def construct_cylinder(direction: npt.ArrayLike, radius: float, origin: npt.ArrayLike, length: float) -> None:
     """Model a cylinder at specific point and orientation in space"""
     doc = se.get_active_document()
     if doc is None:
