@@ -3,9 +3,6 @@ from __future__ import annotations
 import re
 import configparser
 
-config_file = "config/settings.ini"
-language_folder = "config/lang"
-
 
 def cast_value(value: str) -> str | int | float | list:
     value = value.strip()
@@ -94,13 +91,3 @@ class _Config:
     def __setattr__(self, key, value) -> None:
         """Raise an error when the user attempts to set an attribute of config object"""
         raise AttributeError(f"Cannot set/modify configuration attribute of class '{self.__class__.__name__}'")
-
-
-def load_config() -> None:
-    """Load configuration and language data"""
-    config.load_config(config_file)
-    lang.load_config(f"{language_folder}/{config.language}.ini")
-
-
-config = _Config()
-lang = _Config()
