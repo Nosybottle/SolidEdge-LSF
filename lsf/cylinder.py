@@ -3,11 +3,14 @@ from __future__ import annotations
 import multiprocessing
 from functools import partial
 import numpy as np
+import numpy.typing as npt
+from typing import Callable
 
 from config import config
 
 
-def get_normals_in_range(phi_0, phi_1, theta_0, theta_1, step):
+def get_normals_in_range(phi_0: float, phi_1: float, theta_0: float, theta_1: float, step: float) -> \
+        tuple[npt.NDArray, npt.NDArray, npt.NDArray]:
     """Calculate vectors for a given segment of a sphere"""
     # Make sure number of steps is odd so that midpoint of the range is included in the angles
     phi_steps = int((phi_1 - phi_0) / 2 / step) * 2 + 1
@@ -30,7 +33,8 @@ def get_normals_in_range(phi_0, phi_1, theta_0, theta_1, step):
     return normals, phi, theta
 
 
-def preprocess(points):
+def preprocess(points: npt.ArrayLike) -> \
+        tuple[npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray, npt.NDArray]:
     """Precalculate values from a list of points"""
     mean = np.average(points, axis = 0)
     x = points - mean
@@ -60,7 +64,8 @@ def preprocess(points):
     return mean, x, mu, f0, f1, f2
 
 
-def fit_cylinder_to_axis(w, num_points, mu, f0, f1, f2):
+def fit_cylinder_to_axis(w: npt.NDArray, num_points: int, mu: npt.NDArray, f0: npt.NDArray, f1: npt.NDArray,
+                         f2: npt.NDArray) -> tuple[float, float, npt.NDArray, npt.NDArray]:
     """For a given axis try fitting a cylinder and return its parameters along with total error"""
     p = np.identity(3) - np.outer(w, w)
     s = np.array([
@@ -87,7 +92,7 @@ def fit_cylinder_to_axis(w, num_points, mu, f0, f1, f2):
     return error, r_sqr, center, w
 
 
-def fit_cylinder_in_range(fit_cylinder_partial, normals):
+def fit_cylinder_in_range(fit_cylinder_partial: Callable, normals: npt.NDArray):
     """Fit cylinder along specified normal vectors and find the best one"""
     pool = multiprocessing.Pool()
     results = pool.map(fit_cylinder_partial, normals)
@@ -100,7 +105,7 @@ def fit_cylinder_in_range(fit_cylinder_partial, normals):
     return best_index, r_sqr, center, normal
 
 
-def fit_cylinder(points):
+def fit_cylinder(points: npt.ArrayLike) -> tuple[npt.NDArray, float, npt.NDArray, float]:
     """Fit cylinder through a set of points"""
     # Prepare data
     mean, centered_points, mu, f0, f1, f2 = preprocess(points)

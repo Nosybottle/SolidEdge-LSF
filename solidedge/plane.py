@@ -1,7 +1,9 @@
+import numpy.typing as npt
+
 import solidedge.seconnect as se
 
 
-def construct_plane(bounding_points) -> None:
+def construct_plane(bounding_points: npt.ArrayLike) -> None:
     """Construct a plane from the bounding points"""
     doc = se.get_active_document()
     if doc is None:

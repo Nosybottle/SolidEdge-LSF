@@ -1,9 +1,10 @@
 import numpy as np
+import numpy.typing as npt
 
 np.set_printoptions(precision = 1, suppress = True)
 
 
-def fit_plane(points):
+def fit_plane(points: npt.ArrayLike) -> npt.NDArray:
     """Calculate best fit plane from the points and return bounding rectangle in the fitted plane"""
     # Center the points around origin
     average = np.mean(points, axis = 0)
