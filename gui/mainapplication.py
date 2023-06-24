@@ -4,7 +4,7 @@ import logging
 from tkinter import ttk
 
 from config import lang
-import lfs
+import lsf
 import solidedge as se
 
 logger = logging.getLogger("LSF")
@@ -124,13 +124,13 @@ class MainApplication(ttk.Frame):
         if points is None:
             return
 
-        if len(points) < lfs.required_points[fitting_object]:
+        if len(points) < lsf.required_points[fitting_object]:
             logger.error(lang.errors[f"{fitting_object}_points"])
             return
 
         self.clear()
 
-        fitting_function = getattr(lfs, f"fit_{fitting_object}")
+        fitting_function = getattr(lsf, f"fit_{fitting_object}")
         drawing_function = getattr(se, f"construct_{fitting_object}")
 
         fitting_data = fitting_function(points)
