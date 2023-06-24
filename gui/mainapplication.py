@@ -120,12 +120,12 @@ class MainApplication(ttk.Frame):
 
     def fit_object_to_points(self, fitting_object: str) -> None:
         """Fit a specified object to points"""
-        points = self.vertex_selector.get_coordinates()
-        if points is None:
+        if self.vertex_selector.count < lsf.required_points[fitting_object]:
+            logger.error(lang.errors[f"{fitting_object}_points"])
             return
 
-        if len(points) < lsf.required_points[fitting_object]:
-            logger.error(lang.errors[f"{fitting_object}_points"])
+        points = self.vertex_selector.get_coordinates()
+        if points is None:
             return
 
         self.clear()
