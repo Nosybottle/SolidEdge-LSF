@@ -1,6 +1,7 @@
 import numpy.typing as npt
 
 import solidedge.seconnect as se
+import solidedge.utils as se_utils
 
 
 def construct_plane(bounding_points: npt.ArrayLike) -> None:
@@ -29,6 +30,4 @@ def construct_plane(bounding_points: npt.ArrayLike) -> None:
                                se.constants.igNatural, 0, se.constants.igNatural, 0, False, False)
 
     # Cleanup
-    if doc.ModelingMode == se.constants.seModelingModeOrdered:
-        blue_surf.DropParents()
-    sketch_3d.Delete()
+    se_utils.cleanup(drop_parents = blue_surf, delete = sketch_3d)
