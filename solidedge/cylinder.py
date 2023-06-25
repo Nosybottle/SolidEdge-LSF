@@ -1,6 +1,7 @@
 import numpy.typing as npt
 
 import solidedge.seconnect as se
+import solidedge.utils as se_utils
 
 
 def construct_cylinder(direction: npt.ArrayLike, radius: float, origin: npt.ArrayLike, length: float) -> None:
@@ -15,7 +16,7 @@ def construct_cylinder(direction: npt.ArrayLike, radius: float, origin: npt.Arra
     # Get plane normal to cylinder axis from it's origin
     sketch_3d = doc.Sketches3D.Add()
     lines_3d = sketch_3d.Lines3D
-    line_3d = lines_3d.Add(*origin, *(origin + direction * length))
+    lines_3d.Add(*origin, *(origin + direction * length))
 
     ref_plane = ref_planes.Item(1) if all(direction != [0, 0, 1]) else ref_planes.Item(2)
     edge = constructions.Item(constructions.Count).Body.Edges(se.constants.igQueryAll).Item(1)
@@ -31,8 +32,4 @@ def construct_cylinder(direction: npt.ArrayLike, radius: float, origin: npt.Arra
     extrusion = extrusions.AddFinite(1, [profile], se.constants.igLeft, length)
 
     # Cleanup
-    if doc.ModelingMode == se.constants.seModelingModeOrdered:
-        extrusion.DropParents()
-        sketch.Delete()
-    line_3d.Delete()
-    sketch_3d.Delete()
+    se_utils.cleanup(drop_parents = extrusion, ordered_delete = sketch, delete = sketch_3d)
