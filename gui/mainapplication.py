@@ -46,6 +46,8 @@ class MainApplication(ttk.Frame):
         self.lf_curves = ttk.Labelframe(self.f_controls, text = lang.curves.frame)
         self.b_fit_line = ttk.Button(self.lf_curves, text = lang.curves.line,
                                      command = lambda: self.fit_object_to_points("line"))
+        self.b_fit_circle = ttk.Button(self.lf_curves, text = lang.curves.circle,
+                                       command = lambda: self.fit_object_to_points("circle"))
 
         self.layout_widgets()
         self.update_counter()
