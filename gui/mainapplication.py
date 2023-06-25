@@ -49,6 +49,11 @@ class MainApplication(ttk.Frame):
         self.b_fit_circle = ttk.Button(self.lf_curves, text = lang.curves.circle,
                                        command = lambda: self.fit_object_to_points("circle"))
 
+        # Combined fitting
+        self.lf_combined = ttk.Labelframe(self.f_controls, text = lang.combined.frame)
+        self.b_fit_plane_circle = ttk.Button(self.lf_combined, text = f"{lang.surfaces.plane} + {lang.curves.circle}",
+                                             command = lambda: self.fit_object_to_points("plane", "circle"))
+
         self.layout_widgets()
         self.update_counter()
 
@@ -125,23 +130,24 @@ class MainApplication(ttk.Frame):
         """When the application is closing terminate the mouse event"""
         self.stop_selector()
 
-    def fit_object_to_points(self, fitting_object: str) -> None:
+    def fit_object_to_points(self, *fitting_objects: str) -> None:
         """Fit a specified object to points"""
-        if self.vertex_selector.count < lsf.required_points[fitting_object]:
-            logger.error(lang.errors[f"{fitting_object}_points"])
-            return
+        # Check enough points are selected
+        for fitting_object in fitting_objects:
+            if self.vertex_selector.count < lsf.required_points[fitting_object]:
+                logger.error(lang.errors[f"{fitting_object}_points"])
+                return
 
         points = self.vertex_selector.get_coordinates()
-        if points is None:
-            return
-
         self.clear()
 
-        fitting_function = getattr(lsf, f"fit_{fitting_object}")
-        drawing_function = getattr(se, f"construct_{fitting_object}")
+        # Fit objects
+        for fitting_object in fitting_objects:
+            fitting_function = getattr(lsf, f"fit_{fitting_object}")
+            drawing_function = getattr(se, f"construct_{fitting_object}")
 
-        fitting_data = fitting_function(points)
-        if isinstance(fitting_data, tuple):
-            drawing_function(*fitting_data)
-        else:
-            drawing_function(fitting_data)
+            fitting_data = fitting_function(points)
+            if isinstance(fitting_data, tuple):
+                drawing_function(*fitting_data)
+            else:
+                drawing_function(fitting_data)
