@@ -3,3 +3,4 @@ from solidedge.vertexselector import VertexSelector
 from solidedge.plane import construct_plane
 from solidedge.cylinder import construct_cylinder
 from solidedge.line import construct_line
+from solidedge.circle import construct_circle
