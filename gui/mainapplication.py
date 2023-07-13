@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import tkinter as tk
 from tkinter import ttk
 
 from config import lang
@@ -23,9 +24,8 @@ class MainApplication(ttk.Frame):
         # Main frame
         self.f_controls = ttk.Frame(self)
 
-        # Status label
-        self.s_status = ttk.Separator(self)
-        self.l_status = ttk.Label(self)
+        # Info label
+        self.l_info = tk.Label(self, fg = "gray30")
 
         # Vertex selection gui
         self.lf_selector = ttk.Labelframe(self.f_controls, text = lang.selector.frame)
@@ -77,19 +77,12 @@ class MainApplication(ttk.Frame):
 
         # Other
         self.f_controls.pack(side = "top")
-        self.l_counter.pack(padx = 12, pady = (2, 4), side = "top", anchor = "w")
+        self.l_info.pack(padx = 12, pady = 4, side = "right")
+        self.l_counter.pack(padx = 12, pady = 4, side = "left")
 
-    def show_status(self) -> None:
-        """Display status label and separator"""
-        self.l_status.pack(side = "bottom", anchor = "w", padx = 12, pady = (3, 4))
-        self.s_status.pack(side = "bottom", padx = 9, fill = "x")
-
-    def display_message(self, message: str) -> None:
-        """Display message to the user"""
-        if not self.status_visible:
-            self.show_status()
-            self.status_visible = True
-        self.l_status.configure(text = message)
+    def set_info_display(self, info_message: str = "") -> None:
+        """Display info message in GUI"""
+        self.l_info.configure(text = info_message)
 
     def update_counter(self) -> None:
         """Update selected vertices counter"""
