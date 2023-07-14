@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import multiprocessing
 from functools import partial
 import numpy as np
 import numpy.typing as npt
@@ -97,8 +96,7 @@ def fit_cylinder_to_axis(w: npt.NDArray, num_points: int, mu: npt.NDArray, f0: n
 
 def fit_cylinder_in_range(fit_cylinder_partial: Callable, normals: npt.NDArray):
     """Fit cylinder along specified normal vectors and find the best one"""
-    pool = multiprocessing.Pool()
-    results = pool.map(fit_cylinder_partial, normals)
+    results = [fit_cylinder_partial(normal) for normal in normals]
 
     # Get cylinder with the smallest error
     best_cylinder = min(results, key = lambda item: item[0])
