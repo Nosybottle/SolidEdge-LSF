@@ -130,6 +130,7 @@ class MainApplication(ttk.Frame):
         for fitting_object in fitting_objects:
             if self.vertex_selector.count < lsf.required_points[fitting_object]:
                 logger.error(lang.errors[f"{fitting_object}_points"])
+                logger.info(lang.info.failed)
                 return
 
         points = self.vertex_selector.get_coordinates()
