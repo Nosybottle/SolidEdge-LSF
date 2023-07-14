@@ -84,8 +84,6 @@ class MainApplication(ttk.Frame):
         """Display info message in GUI"""
         self.l_info.configure(text = info_message)
         self.l_info.update()
-        import time
-        time.sleep(0.5)
 
     def update_counter(self) -> None:
         """Update selected vertices counter"""
