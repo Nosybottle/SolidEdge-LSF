@@ -1,7 +1,11 @@
 import numpy as np
 import numpy.typing as npt
+import logging
 
-np.set_printoptions(precision = 1, suppress = True)
+from config import lang
+
+
+logger = logging.getLogger("LSF")
 
 
 def plane_normal(centered_points: npt.ArrayLike) -> npt.NDArray:
@@ -28,6 +32,8 @@ def plane_coordinate_system(normal_vector: npt.ArrayLike) -> npt.NDArray:
 
 def fit_plane(points: npt.ArrayLike) -> npt.NDArray:
     """Calculate best fit plane from the points and return bounding rectangle in the fitted plane"""
+    logger.info(lang.info.plane_fitting)
+
     # Center the points around origin
     average = np.mean(points, axis = 0)
     centered_points = points - average

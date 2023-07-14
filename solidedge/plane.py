@@ -1,11 +1,17 @@
 import numpy.typing as npt
+import logging
 
 import solidedge.seconnect as se
 import solidedge.utils as se_utils
+from config import lang
+
+logger = logging.getLogger("LSF")
 
 
 def construct_plane(bounding_points: npt.ArrayLike) -> None:
     """Construct a plane from the bounding points"""
+    logger.info(lang.info.plane_construction)
+
     doc = se.get_active_document()
     if doc is None:
         return

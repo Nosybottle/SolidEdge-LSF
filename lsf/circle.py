@@ -1,11 +1,18 @@
 import numpy as np
 import numpy.typing as npt
+import logging
 
 from lsf import plane
+from config import lang
+
+
+logger = logging.getLogger("LSF")
 
 
 def fit_circle(points: npt.ArrayLike):
     """Fit specified points by a circle in 3D"""
+    logger.info(lang.info.circle_fitting)
+
     mean = np.mean(points, axis = 0)
     centered_points = points - mean
 

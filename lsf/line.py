@@ -1,9 +1,16 @@
 import numpy as np
 import numpy.typing as npt
+import logging
+
+from config import lang
+
+logger = logging.getLogger("LSF")
 
 
 def fit_line(points: npt.ArrayLike) -> tuple[npt.NDArray, npt.NDArray]:
     """Calculate best fit line through set of points"""
+    logger.info(lang.info.line_fitting)
+
     mean = np.mean(points, axis = 0)
 
     uu, dd, vv = np.linalg.svd(points - mean)

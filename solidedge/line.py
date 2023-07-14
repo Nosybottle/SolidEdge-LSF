@@ -1,11 +1,17 @@
 import numpy.typing as npt
+import logging
 
 import solidedge.seconnect as se
 import solidedge.utils as se_utils
+from config import lang
+
+logger = logging.getLogger("LSF")
 
 
 def construct_line(start_point: npt.ArrayLike, end_point: npt.ArrayLike) -> None:
     """Create a line between two points"""
+    logger.info(lang.info.line_construction)
+
     doc = se.get_active_document()
     if doc is None:
         return

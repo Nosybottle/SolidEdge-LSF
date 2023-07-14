@@ -83,6 +83,9 @@ class MainApplication(ttk.Frame):
     def set_info_display(self, info_message: str = "") -> None:
         """Display info message in GUI"""
         self.l_info.configure(text = info_message)
+        self.l_info.update()
+        import time
+        time.sleep(0.5)
 
     def update_counter(self) -> None:
         """Update selected vertices counter"""
@@ -144,3 +147,5 @@ class MainApplication(ttk.Frame):
                 drawing_function(*fitting_data)
             else:
                 drawing_function(fitting_data)
+
+        logger.info(lang.info.done)

@@ -2,11 +2,15 @@ from __future__ import annotations
 
 import numpy as np
 import numpy.typing as npt
+import logging
 import win32com.client
 import win32gui  # noqa
 from pywintypes import com_error  # noqa
 
 from solidedge import se
+from config import lang
+
+logger = logging.getLogger("LSF")
 
 
 def rgb_to_int(r, g, b):
@@ -30,16 +34,20 @@ class VertexSelector:
 
     def new_selection(self) -> None:
         """Clean old and start new vertex selection"""
-        self.create_command(clear_data = True)
+        if not self.create_command(clear_data = True):
+            return
+
+        logger.info(lang.info.selector_new)
 
     def continue_selection(self) -> None:
         """Continue selection with current vertices"""
         if self.highlight_set is not None:
             self.clear_highlight()
-        success = self.create_command(clear_data = False)
-        if not success:
+        if not self.create_command(clear_data = False):
             return
         self.highlight_all()
+
+        logger.info(lang.info.selector_continue)
 
     def stop(self) -> None:
         """Terminate the mouse event"""
@@ -54,6 +62,8 @@ class VertexSelector:
         self.highlight_set = None
         self.command = None
         self.mouse = None
+
+        logger.info(lang.info.selector_stop)
 
     def create_command(self, clear_data: bool) -> bool:
         """Create new SolidEdge command to select vertices. Return success of creating new command"""

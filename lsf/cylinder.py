@@ -5,8 +5,11 @@ from functools import partial
 import numpy as np
 import numpy.typing as npt
 from typing import Callable
+import logging
 
-from config import config
+from config import config, lang
+
+logger = logging.getLogger("LSF")
 
 
 def get_normals_in_range(phi_0: float, phi_1: float, theta_0: float, theta_1: float, step: float) -> \
@@ -119,6 +122,8 @@ def fit_cylinder(points: npt.ArrayLike) -> tuple[npt.NDArray, float, npt.NDArray
     r_sqr, center, normal = 0, 0, np.zeros(3)
 
     for i, angle_step in enumerate(config.cylinder_angle_steps):
+        logger.info(f"{lang.info.cylinder_fitting} ({i + 1}/{len(config.cylinder_angle_steps)})")
+
         angle_step = float(np.radians(angle_step))
 
         # Find best cylinder in range
