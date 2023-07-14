@@ -1,6 +1,14 @@
 # SolidEdge - Least Squares Fitting
 
-Allows user to select vertices and use them to construct various geometrical objects (plane, cylinder).
+Allows user to select vertices and use them to construct various geometrical objects (plane, cylinder, ...).
+
+<br></br>
+To change language or cylinder search steps modify configuration file **_config/settings.ini_**
+
+Currently supported languages: english, czech
+
+<br></br>
+Note: I am not a mathematician. I don't understand the math used for fitting various geometries, so there may be bugs or incorrect methods.
 
 ### Sources of algorithms used:
   - Plane: [Answer on Mathematics Stack Exchange by _joriki_](https://math.stackexchange.com/a/99317)
